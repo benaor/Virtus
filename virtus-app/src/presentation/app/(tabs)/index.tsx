@@ -3,8 +3,8 @@
  * Dashboard with daily engagements, progress, and exhortation
  */
 
-import { useMemo } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { useMemo, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useDayStore } from '@presentation/stores/useDayStore';
@@ -33,15 +33,35 @@ const CATEGORIES: {
 ];
 
 /**
- * Circular progress indicator
+ * Circular progress indicator with animation
  */
 function ProgressCircle({ day, total }: { day: number; total: number }) {
   const percentage = (day / total) * 100;
-  const circumference = 2 * Math.PI * 40; // radius = 40
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+
+  useEffect(() => {
+    // Animate rotation based on percentage (0-360 degrees mapped from 0-100%)
+    Animated.parallel([
+      Animated.timing(rotateAnim, {
+        toValue: percentage,
+        duration: 500,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 5,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [percentage, rotateAnim, scaleAnim]);
 
   return (
-    <View className="w-20 h-20 items-center justify-center">
+    <Animated.View
+      className="w-20 h-20 items-center justify-center"
+      style={{ transform: [{ scale: scaleAnim }] }}
+    >
       {/* Background circle */}
       <View
         className="absolute w-20 h-20 rounded-full"
@@ -75,7 +95,7 @@ function ProgressCircle({ day, total }: { day: number; total: number }) {
           /{total}
         </Text>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 

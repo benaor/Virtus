@@ -3,7 +3,7 @@
  * Reusable checklist for a category of engagements
  */
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { View, Text, Pressable, Animated } from 'react-native';
 import type { Engagement, EngagementCategory, CategoryProgress } from '@domain/entities';
 
@@ -47,13 +47,23 @@ interface EngagementItemProps {
 
 function EngagementItem({ engagement, isChecked, color, onToggle }: EngagementItemProps) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
+  const checkAnim = useRef(new Animated.Value(isChecked ? 1 : 0)).current;
+
+  // Animate check appearance/disappearance
+  useEffect(() => {
+    Animated.timing(checkAnim, {
+      toValue: isChecked ? 1 : 0,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  }, [isChecked, checkAnim]);
 
   const handlePress = () => {
-    // Scale bounce animation
+    // Scale bounce animation on the circle
     Animated.sequence([
       Animated.timing(scaleAnim, {
         toValue: 0.85,
-        duration: 80,
+        duration: 60,
         useNativeDriver: true,
       }),
       Animated.spring(scaleAnim, {
@@ -84,9 +94,25 @@ function EngagementItem({ engagement, isChecked, color, onToggle }: EngagementIt
             borderColor: '#D1D5DB',
           }}
         >
-          {isChecked && (
-            <Text className="text-white text-sm font-bold">✓</Text>
-          )}
+          {/* Animated checkmark */}
+          <Animated.Text
+            style={{
+              color: '#FFFFFF',
+              fontSize: 14,
+              fontWeight: 'bold',
+              opacity: checkAnim,
+              transform: [
+                {
+                  scale: checkAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1],
+                  }),
+                },
+              ],
+            }}
+          >
+            ✓
+          </Animated.Text>
         </View>
       </Animated.View>
 

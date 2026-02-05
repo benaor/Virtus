@@ -3,7 +3,8 @@
  * Displays the daily exhortation with a golden gradient background
  */
 
-import { View, Text, Pressable } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Text, Pressable, Animated } from 'react-native';
 import type { Exhortation } from '@domain/entities';
 
 const COLORS = {
@@ -22,6 +23,20 @@ interface ExhortationCardProps {
 }
 
 export function ExhortationCard({ exhortation, onReadMore }: ExhortationCardProps) {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Fade in when exhortation content loads
+  useEffect(() => {
+    if (exhortation) {
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [exhortation, fadeAnim]);
+
   if (!exhortation) {
     return (
       <View
@@ -52,13 +67,22 @@ export function ExhortationCard({ exhortation, onReadMore }: ExhortationCardProp
 
   return (
     <Pressable onPress={onReadMore}>
-      <View
+      <Animated.View
         className="rounded-2xl p-5"
         style={{
           backgroundColor: COLORS.gradientStart,
           // Simulated gradient with border
           borderBottomWidth: 3,
           borderBottomColor: COLORS.gradientEnd,
+          opacity: fadeAnim,
+          transform: [
+            {
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [8, 0],
+              }),
+            },
+          ],
         }}
       >
         {/* Label */}
@@ -97,7 +121,7 @@ export function ExhortationCard({ exhortation, onReadMore }: ExhortationCardProp
             Lire la suite →
           </Text>
         </View>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 }

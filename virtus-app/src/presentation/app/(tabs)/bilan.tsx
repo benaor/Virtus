@@ -3,7 +3,8 @@
  * Weekly/overall stats, heatmap, encouragement, and confession tracking
  */
 
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import { useBilan } from '@presentation/hooks';
 import type { EngagementCategory } from '@domain/entities';
 
@@ -95,22 +96,34 @@ function StatCard({ category, percentage }: StatCardProps) {
 }
 
 /**
- * Heatmap cell
+ * Heatmap cell with stagger animation
  */
 interface HeatmapCellProps {
   checked: boolean;
   category: EngagementCategory;
+  delay: number;
 }
 
-function HeatmapCell({ checked, category }: HeatmapCellProps) {
+function HeatmapCell({ checked, category, delay }: HeatmapCellProps) {
   const color = COLORS[category];
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(scaleAnim, {
+      toValue: 1,
+      duration: 200,
+      delay,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim, delay]);
 
   return (
-    <View
+    <Animated.View
       className="w-6 h-6 rounded-sm mx-0.5"
       style={{
         backgroundColor: checked ? color : COLORS.grayLight,
         opacity: checked ? 1 : 0.3,
+        transform: [{ scale: scaleAnim }],
       }}
     />
   );
@@ -123,9 +136,10 @@ interface HeatmapRowProps {
   name: string;
   category: EngagementCategory;
   days: boolean[];
+  rowIndex: number;
 }
 
-function HeatmapRow({ name, category, days }: HeatmapRowProps) {
+function HeatmapRow({ name, category, days, rowIndex }: HeatmapRowProps) {
   return (
     <View className="flex-row items-center py-2">
       <View className="flex-1 pr-2">
@@ -138,8 +152,13 @@ function HeatmapRow({ name, category, days }: HeatmapRowProps) {
         </Text>
       </View>
       <View className="flex-row">
-        {days.map((checked, index) => (
-          <HeatmapCell key={index} checked={checked} category={category} />
+        {days.map((checked, colIndex) => (
+          <HeatmapCell
+            key={colIndex}
+            checked={checked}
+            category={category}
+            delay={rowIndex * 30 + colIndex * 40}
+          />
         ))}
       </View>
     </View>
@@ -358,12 +377,13 @@ export default function BilanScreen() {
             </View>
 
             {/* Engagement rows */}
-            {weeklyStats.map((stat) => (
+            {weeklyStats.map((stat, rowIndex) => (
               <HeatmapRow
                 key={stat.engagement.id}
                 name={stat.engagement.title}
                 category={stat.engagement.category}
                 days={stat.days}
+                rowIndex={rowIndex}
               />
             ))}
 
