@@ -1,41 +1,198 @@
 /**
  * Penance Screen
- * Choose 5 personal penance engagements
+ * Choose exactly 5 personal penance engagements
  */
 
-import { View, Text, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { usePenanceSelection } from '@presentation/hooks';
 
-export default function PenanceScreen() {
-  const router = useRouter();
+// Golden palette (same as welcome screen)
+const COLORS = {
+  gold: '#8B6914',
+  goldLight: '#C9A84C',
+  goldBg: '#FDF8E8',
+  background: '#FDFCFA',
+  gray: '#F3F4F6',
+  grayBorder: '#D1D5DB',
+  textPrimary: '#111827',
+  textMuted: '#6B7280',
+};
 
-  const handleFinish = () => {
-    // TODO: Save penance engagements and complete onboarding
-    router.replace('/(tabs)');
-  };
+// Proposed penance options
+const PENANCE_OPTIONS = [
+  "Pas d'alcool",
+  'Jeûne le vendredi',
+  'Douche froide',
+  'Pas de viande',
+  'Pas de sucre ajouté',
+  'Dormir par terre 1x/semaine',
+  'Pas de musique profane',
+  'Se lever à 6h',
+  'Pas de snacks/gourmandises',
+  'Pas de café/thé',
+];
 
+interface PenanceItemProps {
+  title: string;
+  isSelected: boolean;
+  onToggle: () => void;
+}
+
+function PenanceItem({ title, isSelected, onToggle }: PenanceItemProps) {
   return (
-    <View className="flex-1 bg-white px-6 py-12">
-      <Text className="text-2xl font-bold text-gray-900 text-center mb-2">
-        Vos pénitences personnelles
-      </Text>
-      <Text className="text-base text-gray-600 text-center mb-8">
-        Choisissez 5 engagements de pénitence pour ce parcours
-      </Text>
-
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-gray-400 text-lg">Écran Pénitences</Text>
-        <Text className="text-gray-400 text-lg">(Formulaire à implémenter)</Text>
+    <Pressable
+      className="flex-row items-center p-4 rounded-xl mb-3"
+      style={{
+        backgroundColor: isSelected ? COLORS.goldBg : COLORS.gray,
+        borderWidth: 2,
+        borderColor: isSelected ? COLORS.goldLight : COLORS.grayBorder,
+      }}
+      onPress={onToggle}
+    >
+      {/* Checkbox */}
+      <View
+        className="w-6 h-6 rounded-md items-center justify-center mr-4"
+        style={{
+          backgroundColor: isSelected ? COLORS.gold : 'transparent',
+          borderWidth: isSelected ? 0 : 2,
+          borderColor: COLORS.grayBorder,
+        }}
+      >
+        {isSelected && <Feather name="check" size={16} color="white" />}
       </View>
 
-      <Pressable
-        className="bg-blue-600 px-8 py-4 rounded-xl flex-row items-center justify-center mb-8"
-        onPress={handleFinish}
+      {/* Title */}
+      <Text
+        className="flex-1 text-base"
+        style={{
+          color: isSelected ? COLORS.gold : COLORS.textPrimary,
+          fontWeight: isSelected ? '600' : '400',
+        }}
       >
-        <Text className="text-white text-lg font-semibold mr-2">Terminer</Text>
-        <Feather name="check" size={20} color="white" />
-      </Pressable>
+        {title}
+      </Text>
+    </Pressable>
+  );
+}
+
+export default function PenanceScreen() {
+  const {
+    selectionCount,
+    canValidate,
+    isSubmitting,
+    error,
+    toggle,
+    isSelected,
+    submit,
+  } = usePenanceSelection();
+
+  return (
+    <View className="flex-1" style={{ backgroundColor: COLORS.background }}>
+      {/* Header */}
+      <View className="px-6 pt-12 pb-4">
+        <Text
+          className="text-2xl text-center mb-2"
+          style={{
+            color: COLORS.gold,
+            fontFamily: 'Georgia',
+            fontWeight: '700',
+          }}
+        >
+          Tes engagements de pénitence
+        </Text>
+        <Text
+          className="text-base text-center mb-6"
+          style={{ color: COLORS.textMuted }}
+        >
+          Choisis 5 parmi les propositions
+        </Text>
+
+        {/* Info Box */}
+        <View
+          className="p-4 rounded-xl mb-4"
+          style={{ backgroundColor: COLORS.goldBg }}
+        >
+          <Text
+            className="text-sm text-center"
+            style={{
+              color: COLORS.gold,
+              fontFamily: 'Georgia',
+              fontStyle: 'italic',
+            }}
+          >
+            Prends le temps du discernement.
+          </Text>
+        </View>
+      </View>
+
+      {/* Scrollable List */}
+      <ScrollView
+        className="flex-1 px-6"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      >
+        {PENANCE_OPTIONS.map((title) => (
+          <PenanceItem
+            key={title}
+            title={title}
+            isSelected={isSelected(title)}
+            onToggle={() => toggle(title)}
+          />
+        ))}
+      </ScrollView>
+
+      {/* Footer */}
+      <View className="px-6 pb-8 pt-4" style={{ backgroundColor: COLORS.background }}>
+        {/* Error Message */}
+        {error && (
+          <Text className="text-red-500 text-center mb-4">{error}</Text>
+        )}
+
+        {/* Counter */}
+        <Text
+          className="text-center mb-4 text-base"
+          style={{
+            color: canValidate ? COLORS.gold : COLORS.textMuted,
+            fontWeight: canValidate ? '600' : '400',
+          }}
+        >
+          {selectionCount}/5 sélectionnés
+        </Text>
+
+        {/* Validate Button */}
+        <Pressable
+          className="py-4 rounded-xl items-center flex-row justify-center"
+          style={{
+            backgroundColor: canValidate ? COLORS.gold : COLORS.grayBorder,
+            opacity: isSubmitting ? 0.7 : 1,
+          }}
+          onPress={submit}
+          disabled={!canValidate || isSubmitting}
+        >
+          {isSubmitting ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <>
+              <Text
+                className="text-lg mr-2"
+                style={{
+                  color: canValidate ? 'white' : COLORS.textMuted,
+                  fontFamily: 'Georgia',
+                  fontWeight: '600',
+                }}
+              >
+                Valider mes engagements
+              </Text>
+              <Feather
+                name="check"
+                size={20}
+                color={canValidate ? 'white' : COLORS.textMuted}
+              />
+            </>
+          )}
+        </Pressable>
+      </View>
     </View>
   );
 }
