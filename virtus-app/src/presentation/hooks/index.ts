@@ -9,3 +9,4 @@ export * from './useFormation';
 export * from './useExamen';
 export * from './useTimeline';
 export * from './useBilan';
+export * from './useSettings';
