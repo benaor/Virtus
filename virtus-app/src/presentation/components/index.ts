@@ -3,3 +3,4 @@
 // Dependencies: @domain/entities, @presentation/hooks, @presentation/stores
 
 export * from './EngagementChecklist';
+export * from './ExhortationCard';
