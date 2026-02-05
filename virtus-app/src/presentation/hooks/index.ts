@@ -8,3 +8,4 @@ export * from './useHomeData';
 export * from './useFormation';
 export * from './useExamen';
 export * from './useTimeline';
+export * from './useBilan';
