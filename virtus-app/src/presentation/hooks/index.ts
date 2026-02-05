@@ -5,3 +5,4 @@
 export * from './usePenanceSelection';
 export * from './useDayProgress';
 export * from './useHomeData';
+export * from './useFormation';
