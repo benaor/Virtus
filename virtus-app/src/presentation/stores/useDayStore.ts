@@ -8,6 +8,8 @@ import {
   type Period,
   getCurrentDay,
   getCurrentPeriod,
+  isBeforeParcours,
+  isAfterParcours,
 } from '@domain/entities/Parcours';
 
 /**
@@ -27,6 +29,10 @@ interface DayState {
   currentDay: number | null;
   /** Current period of the parcours, null if outside parcours */
   currentPeriod: Period | null;
+  /** Whether we're before the parcours start date */
+  isBeforeStart: boolean;
+  /** Whether we're after the parcours end date */
+  isAfterEnd: boolean;
 }
 
 interface DayActions {
@@ -44,11 +50,15 @@ function calculateDayState(): DayState {
   const currentDate = formatDateISO(today);
   const currentDay = getCurrentDay(today);
   const currentPeriod = currentDay !== null ? getCurrentPeriod(currentDay) : null;
+  const isBeforeStart = isBeforeParcours(today);
+  const isAfterEnd = isAfterParcours(today);
 
   return {
     currentDate,
     currentDay,
     currentPeriod,
+    isBeforeStart,
+    isAfterEnd,
   };
 }
 

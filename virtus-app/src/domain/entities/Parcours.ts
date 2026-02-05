@@ -146,3 +146,51 @@ export function getProgress(today: Date): number | null {
 export function formatDayLabel(day: number): string {
   return `Jour ${day}`;
 }
+
+/**
+ * Check if the parcours hasn't started yet
+ * @param today - The current date
+ * @returns true if today is before the parcours start
+ */
+export function isBeforeParcours(today: Date): boolean {
+  const startDate = parseDate(PARCOURS_START);
+  const todayNormalized = startOfDayUTC(today);
+  return todayNormalized < startDate;
+}
+
+/**
+ * Check if the parcours has ended
+ * @param today - The current date
+ * @returns true if today is after the parcours end
+ */
+export function isAfterParcours(today: Date): boolean {
+  const endDate = parseDate(PARCOURS_END);
+  const todayNormalized = startOfDayUTC(today);
+  return todayNormalized > endDate;
+}
+
+/**
+ * Get the number of days until parcours starts
+ * @param today - The current date
+ * @returns Days until start, or null if parcours has already started
+ */
+export function getDaysUntilStart(today: Date): number | null {
+  const startDate = parseDate(PARCOURS_START);
+  const todayNormalized = startOfDayUTC(today);
+
+  if (todayNormalized >= startDate) {
+    return null;
+  }
+
+  return diffInDays(startDate, todayNormalized);
+}
+
+/**
+ * Get parcours start and end dates
+ */
+export function getParcoursDates(): { start: string; end: string } {
+  return {
+    start: PARCOURS_START,
+    end: PARCOURS_END,
+  };
+}
