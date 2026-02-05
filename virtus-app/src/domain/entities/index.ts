@@ -1,3 +1,5 @@
 // Domain Entities
 // This layer contains enterprise business rules and entities
-// Dependencies: NONE (this is the innermost layer)
+// Dependencies: @core/constants (shared layer only)
+
+export * from './Parcours';
