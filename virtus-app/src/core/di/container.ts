@@ -1,4 +1,4 @@
-import { SQLiteDatabase } from '@data/datasources';
+import { SQLiteDatabase, NotificationService } from '@data/datasources';
 import {
   SQLiteEngagementRepository,
   SQLiteDailyCheckRepository,
@@ -26,6 +26,9 @@ class Container {
 
   // Datasource
   private sqliteDatabase: SQLiteDatabase | null = null;
+
+  // Services
+  private notificationService: NotificationService | null = null;
 
   // Repositories
   private engagementRepository: SQLiteEngagementRepository | null = null;
@@ -110,6 +113,17 @@ class Container {
       this.contentRepository = new StaticContentRepository();
     }
     return this.contentRepository;
+  }
+
+  // ========================================
+  // Services
+  // ========================================
+
+  getNotificationService(): NotificationService {
+    if (!this.notificationService) {
+      this.notificationService = new NotificationService(this.getSettingsRepository());
+    }
+    return this.notificationService;
   }
 
   // ========================================
@@ -200,6 +214,9 @@ class Container {
     this.setupPenanceEngagementsUseCase = null;
     this.getOverallStatsUseCase = null;
 
+    // Reset services
+    this.notificationService = null;
+
     // Reset repositories
     this.engagementRepository = null;
     this.dailyCheckRepository = null;
@@ -224,6 +241,9 @@ export const container = Container.getInstance();
 
 // Datasource
 export const getDatabase = () => container.getDatabase();
+
+// Services
+export const getNotificationService = () => container.getNotificationService();
 
 // Repositories
 export const getEngagementRepository = () => container.getEngagementRepository();

@@ -3,3 +3,4 @@
 // Dependencies: @data/dto, @core/*
 
 export * from './SQLiteDatabase';
+export * from './NotificationService';

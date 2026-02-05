@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { getSetupPenanceEngagementsUseCase } from '@core/di/container';
+import { getSetupPenanceEngagementsUseCase, getNotificationService } from '@core/di/container';
 
 const MAX_SELECTIONS = 5;
 
@@ -51,8 +51,17 @@ export function usePenanceSelection() {
     setError(null);
 
     try {
+      // Save penance selections
       const useCase = getSetupPenanceEngagementsUseCase();
       await useCase.execute(selectedTitles);
+
+      // Setup notifications at end of onboarding
+      const notificationService = getNotificationService();
+      const permissionGranted = await notificationService.requestPermissions();
+      if (permissionGranted) {
+        await notificationService.scheduleDefaults();
+      }
+
       router.replace('/(tabs)');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
