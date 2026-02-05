@@ -3,3 +3,4 @@
 // Dependencies: @domain/usecases, @presentation/stores
 
 export * from './usePenanceSelection';
+export * from './useDayProgress';
