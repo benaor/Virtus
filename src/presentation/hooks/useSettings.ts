@@ -67,9 +67,9 @@ export function useSettings(): UseSettingsResult {
         ]);
 
         setSettings({
-          morningReminderEnabled: notificationPrefs.enabled,
+          morningReminderEnabled: notificationPrefs.morningEnabled,
           morningTime: notificationPrefs.morningTime,
-          eveningReminderEnabled: notificationPrefs.enabled,
+          eveningReminderEnabled: notificationPrefs.eveningEnabled,
           eveningTime: notificationPrefs.eveningTime,
           screenTimeReminderEnabled: screenTimeReminder === 'true',
           appVersion: '1.0.0',
@@ -107,6 +107,9 @@ export function useSettings(): UseSettingsResult {
         }
       }
 
+      // Persist the enabled state
+      await notificationService.setMorningEnabled(newEnabled);
+
       setSettings((prev) => ({
         ...prev,
         morningReminderEnabled: newEnabled,
@@ -137,6 +140,9 @@ export function useSettings(): UseSettingsResult {
           );
         }
       }
+
+      // Persist the enabled state
+      await notificationService.setEveningEnabled(newEnabled);
 
       setSettings((prev) => ({
         ...prev,

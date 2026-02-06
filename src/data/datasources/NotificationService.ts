@@ -3,16 +3,17 @@
  * Handles local notifications for daily reminders
  */
 
-import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
-import type { SettingsRepository } from '@domain/repositories';
+import * as Notifications from "expo-notifications";
+import type { SettingsRepository } from "@domain/repositories";
 
 // Settings keys
-const MORNING_HOUR_KEY = 'notification_morning_hour';
-const MORNING_MINUTE_KEY = 'notification_morning_minute';
-const EVENING_HOUR_KEY = 'notification_evening_hour';
-const EVENING_MINUTE_KEY = 'notification_evening_minute';
-const NOTIFICATIONS_ENABLED_KEY = 'notifications_enabled';
+const MORNING_HOUR_KEY = "notification_morning_hour";
+const MORNING_MINUTE_KEY = "notification_morning_minute";
+const EVENING_HOUR_KEY = "notification_evening_hour";
+const EVENING_MINUTE_KEY = "notification_evening_minute";
+const NOTIFICATIONS_ENABLED_KEY = "notifications_enabled";
+const MORNING_ENABLED_KEY = "notification_morning_enabled";
+const EVENING_ENABLED_KEY = "notification_evening_enabled";
 
 // Default times
 const DEFAULT_MORNING_HOUR = 7;
@@ -21,8 +22,8 @@ const DEFAULT_EVENING_HOUR = 21;
 const DEFAULT_EVENING_MINUTE = 30;
 
 // Notification identifiers
-const MORNING_NOTIFICATION_ID = 'virtus-morning-reminder';
-const EVENING_NOTIFICATION_ID = 'virtus-evening-reminder';
+const MORNING_NOTIFICATION_ID = "virtus-morning-reminder";
+const EVENING_NOTIFICATION_ID = "virtus-evening-reminder";
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -41,7 +42,8 @@ export interface NotificationTime {
 }
 
 export interface NotificationPreferences {
-  enabled: boolean;
+  morningEnabled: boolean;
+  eveningEnabled: boolean;
   morningTime: NotificationTime;
   eveningTime: NotificationTime;
 }
@@ -54,20 +56,21 @@ export class NotificationService {
    * @returns true if permissions granted
    */
   async requestPermissions(): Promise<boolean> {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
 
-    if (existingStatus === 'granted') {
+    if (existingStatus === "granted") {
       return true;
     }
 
     const { status } = await Notifications.requestPermissionsAsync();
 
-    if (status === 'granted') {
-      await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, 'true');
+    if (status === "granted") {
+      await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, "true");
       return true;
     }
 
-    await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, 'false');
+    await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, "false");
     return false;
   }
 
@@ -76,14 +79,16 @@ export class NotificationService {
    */
   async scheduleMorningReminder(hour: number, minute: number): Promise<void> {
     // Cancel existing morning notification
-    await Notifications.cancelScheduledNotificationAsync(MORNING_NOTIFICATION_ID).catch(() => {});
+    await Notifications.cancelScheduledNotificationAsync(
+      MORNING_NOTIFICATION_ID,
+    ).catch(() => {});
 
     // Schedule new notification
     await Notifications.scheduleNotificationAsync({
       identifier: MORNING_NOTIFICATION_ID,
       content: {
-        title: 'Virtus — Exhortation du jour',
-        body: 'Commence ta journée avec la formation du jour 🙏',
+        title: "Virtus — Exhortation du jour",
+        body: "Commence ta journée avec la formation du jour 🙏",
         sound: true,
       },
       trigger: {
@@ -103,14 +108,16 @@ export class NotificationService {
    */
   async scheduleEveningReminder(hour: number, minute: number): Promise<void> {
     // Cancel existing evening notification
-    await Notifications.cancelScheduledNotificationAsync(EVENING_NOTIFICATION_ID).catch(() => {});
+    await Notifications.cancelScheduledNotificationAsync(
+      EVENING_NOTIFICATION_ID,
+    ).catch(() => {});
 
     // Schedule new notification
     await Notifications.scheduleNotificationAsync({
       identifier: EVENING_NOTIFICATION_ID,
       content: {
-        title: 'Virtus — Examen du soir',
-        body: 'Prends 10 minutes pour ton examen de conscience 🕯',
+        title: "Virtus — Examen du soir",
+        body: "Prends 10 minutes pour ton examen de conscience 🕯",
         sound: true,
       },
       trigger: {
@@ -130,13 +137,16 @@ export class NotificationService {
    */
   async cancelAll(): Promise<void> {
     await Notifications.cancelAllScheduledNotificationsAsync();
-    await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, 'false');
+    await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, "false");
   }
 
   /**
    * Reschedule both notifications with new times
    */
-  async reschedule(morningTime: NotificationTime, eveningTime: NotificationTime): Promise<void> {
+  async reschedule(
+    morningTime: NotificationTime,
+    eveningTime: NotificationTime,
+  ): Promise<void> {
     // Cancel all existing
     await Notifications.cancelAllScheduledNotificationsAsync();
 
@@ -144,7 +154,7 @@ export class NotificationService {
     await this.scheduleMorningReminder(morningTime.hour, morningTime.minute);
     await this.scheduleEveningReminder(eveningTime.hour, eveningTime.minute);
 
-    await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, 'true');
+    await this.settingsRepository.set(NOTIFICATIONS_ENABLED_KEY, "true");
   }
 
   /**
@@ -153,7 +163,7 @@ export class NotificationService {
   async scheduleDefaults(): Promise<void> {
     await this.reschedule(
       { hour: DEFAULT_MORNING_HOUR, minute: DEFAULT_MORNING_MINUTE },
-      { hour: DEFAULT_EVENING_HOUR, minute: DEFAULT_EVENING_MINUTE }
+      { hour: DEFAULT_EVENING_HOUR, minute: DEFAULT_EVENING_MINUTE },
     );
   }
 
@@ -161,8 +171,16 @@ export class NotificationService {
    * Get current notification preferences
    */
   async getPreferences(): Promise<NotificationPreferences> {
-    const [enabled, morningHour, morningMinute, eveningHour, eveningMinute] = await Promise.all([
-      this.settingsRepository.get(NOTIFICATIONS_ENABLED_KEY),
+    const [
+      morningEnabled,
+      eveningEnabled,
+      morningHour,
+      morningMinute,
+      eveningHour,
+      eveningMinute,
+    ] = await Promise.all([
+      this.settingsRepository.get(MORNING_ENABLED_KEY),
+      this.settingsRepository.get(EVENING_ENABLED_KEY),
       this.settingsRepository.get(MORNING_HOUR_KEY),
       this.settingsRepository.get(MORNING_MINUTE_KEY),
       this.settingsRepository.get(EVENING_HOUR_KEY),
@@ -170,14 +188,19 @@ export class NotificationService {
     ]);
 
     return {
-      enabled: enabled === 'true',
+      morningEnabled: morningEnabled === "true",
+      eveningEnabled: eveningEnabled === "true",
       morningTime: {
         hour: morningHour ? parseInt(morningHour, 10) : DEFAULT_MORNING_HOUR,
-        minute: morningMinute ? parseInt(morningMinute, 10) : DEFAULT_MORNING_MINUTE,
+        minute: morningMinute
+          ? parseInt(morningMinute, 10)
+          : DEFAULT_MORNING_MINUTE,
       },
       eveningTime: {
         hour: eveningHour ? parseInt(eveningHour, 10) : DEFAULT_EVENING_HOUR,
-        minute: eveningMinute ? parseInt(eveningMinute, 10) : DEFAULT_EVENING_MINUTE,
+        minute: eveningMinute
+          ? parseInt(eveningMinute, 10)
+          : DEFAULT_EVENING_MINUTE,
       },
     };
   }
@@ -187,6 +210,26 @@ export class NotificationService {
    */
   async isEnabled(): Promise<boolean> {
     const value = await this.settingsRepository.get(NOTIFICATIONS_ENABLED_KEY);
-    return value === 'true';
+    return value === "true";
+  }
+
+  /**
+   * Set morning reminder enabled state
+   */
+  async setMorningEnabled(enabled: boolean): Promise<void> {
+    await this.settingsRepository.set(
+      MORNING_ENABLED_KEY,
+      enabled ? "true" : "false",
+    );
+  }
+
+  /**
+   * Set evening reminder enabled state
+   */
+  async setEveningEnabled(enabled: boolean): Promise<void> {
+    await this.settingsRepository.set(
+      EVENING_ENABLED_KEY,
+      enabled ? "true" : "false",
+    );
   }
 }
