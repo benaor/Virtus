@@ -253,6 +253,14 @@ export class SQLiteDatabase {
   }
 
   /**
+   * Delete all engagements by category
+   */
+  deleteEngagementsByCategory(category: EngagementCategory): void {
+    const db = this.getDatabase();
+    db.runSync('DELETE FROM engagements WHERE category = ?', [category]);
+  }
+
+  /**
    * Update engagement active status
    */
   updateEngagementActive(id: string, isActive: boolean): void {

@@ -10,5 +10,6 @@ export interface EngagementRepository {
   getByCategory(category: EngagementCategory): Promise<Engagement[]>;
   getActive(): Promise<Engagement[]>;
   addPenanceEngagements(engagements: Pick<Engagement, 'title'>[]): Promise<void>;
+  replacePenanceEngagements(engagements: Pick<Engagement, 'title'>[]): Promise<void>;
   hasPenanceEngagements(): Promise<boolean>;
 }

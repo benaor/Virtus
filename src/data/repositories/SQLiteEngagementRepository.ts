@@ -43,6 +43,27 @@ export class SQLiteEngagementRepository implements EngagementRepository {
     });
   }
 
+  async replacePenanceEngagements(engagements: Pick<Engagement, 'title'>[]): Promise<void> {
+    const db = this.db.getDatabase();
+    const baseOrder = 10; // Start after fixed engagements
+
+    db.withTransactionSync(() => {
+      // Delete existing penances
+      this.db.deleteEngagementsByCategory('penance');
+
+      // Insert new penances
+      engagements.forEach((engagement, index) => {
+        const id = `penance-${Date.now()}-${index}`;
+        this.db.insertEngagement({
+          id,
+          category: 'penance',
+          title: engagement.title,
+          sort_order: baseOrder + index,
+        });
+      });
+    });
+  }
+
   async hasPenanceEngagements(): Promise<boolean> {
     const penanceEngagements = await this.getByCategory('penance');
     return penanceEngagements.length > 0;

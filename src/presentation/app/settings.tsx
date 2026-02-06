@@ -8,23 +8,6 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSettings } from '@presentation/hooks';
 
-// Conditionally import @expo/ui Switch for iOS
-let ExpoSwitch: React.ComponentType<{
-  value: boolean;
-  onValueChange: (value: boolean) => void;
-  color?: string;
-}> | null = null;
-
-if (Platform.OS === 'ios') {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ExpoUI = require('@expo/ui/swift-ui');
-    ExpoSwitch = ExpoUI.Switch;
-  } catch {
-    // Fallback to RN Switch
-  }
-}
-
 const COLORS = {
   gold: '#8B6914',
   goldLight: '#C9A84C',
@@ -47,7 +30,7 @@ function formatTime(hour: number, minute: number): string {
 }
 
 /**
- * Cross-platform Toggle component
+ * Toggle component using native React Native Switch
  */
 interface ToggleProps {
   value: boolean;
@@ -55,16 +38,13 @@ interface ToggleProps {
 }
 
 function Toggle({ value, onValueChange }: ToggleProps) {
-  if (Platform.OS === 'ios' && ExpoSwitch) {
-    return <ExpoSwitch value={value} onValueChange={onValueChange} color={COLORS.gold} />;
-  }
-
   return (
     <RNSwitch
       value={value}
       onValueChange={onValueChange}
       trackColor={{ false: COLORS.grayLight, true: COLORS.goldLight }}
       thumbColor={value ? COLORS.gold : COLORS.grayBg}
+      ios_backgroundColor={COLORS.grayLight}
     />
   );
 }
@@ -234,7 +214,7 @@ export default function SettingsScreen() {
         { text: 'Annuler', style: 'cancel' },
         {
           text: 'Continuer',
-          onPress: () => router.push('/onboarding/penance'),
+          onPress: () => router.push('/penance'),
         },
       ]
     );
