@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.hozana.virtus"
+      "bundleIdentifier": "com.hozana.virtus",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.hozana.virtus",
@@ -25,7 +28,12 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      ["expo-router", { "root": "./src/presentation/app" }],
+      [
+        "expo-router",
+        {
+          "root": "./src/presentation/app"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -50,8 +58,12 @@
     },
     "extra": {
       "eas": {
-        "projectId": "virtus-app"
+        "projectId": "caadcb70-6094-4795-92ee-2f1aabd2b749"
+      },
+      "router": {
+        "root": "./src/presentation/app"
       }
-    }
+    },
+    "owner": "benaor"
   }
 }

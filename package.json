@@ -3,20 +3,23 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bunx expo start --dev-client",
+    "dev": "bunx expo start --dev-client --clear",
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:ios": "eas build --platform ios --profile preview",
-    "build:android": "eas build --platform android --profile preview",
-    "build:dev": "eas build --profile development",
+    "build:dev:ios": "eas build --profile development --platform ios --local",
+    "build:dev:ios-simulator": "eas build --profile simulator --platform ios --local",
+    "build:dev:android": "eas build --profile development --platform android --local",
+    "build:preview:ios": "eas build --platform ios --profile preview",
+    "build:preview:android": "eas build --platform android --profile preview",
+    "build:prod:ios": "eas build --profile production --platform ios",
+    "build:prod:android": "eas build --profile production --platform android",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
     "lint": "bunx expo lint",
-    "typecheck": "tsc --noEmit",
-    "reset-project": "node ./scripts/reset-project.js"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@expo/ui": "^0.2.0-beta.9",
@@ -26,6 +29,7 @@
     "@react-navigation/native": "^7.1.8",
     "expo": "~54.0.33",
     "expo-constants": "~18.0.13",
+    "expo-dev-client": "~6.0.20",
     "expo-font": "~14.0.11",
     "expo-haptics": "~15.0.8",
     "expo-image": "~3.0.11",
@@ -52,12 +56,12 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
+    "@types/jest": "29.5.14",
     "@types/react": "~19.1.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
-    "jest": "^30.2.0",
+    "jest": "~29.7.0",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.2"
   },

@@ -4,6 +4,8 @@
  * manages splash screen, and detects day changes
  */
 
+import '../../../global.css';
+
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
