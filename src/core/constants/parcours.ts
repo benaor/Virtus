@@ -1,6 +1,6 @@
 /**
  * Virtus Parcours Constants
- * 70-day journey from February 16 to April 26, 2025
+ * 70-day journey from February 1 to April 11, 2026
  */
 
 export type Period = {
@@ -12,10 +12,10 @@ export type Period = {
 };
 
 /** Parcours start date (ISO format) */
-export const PARCOURS_START = '2025-02-16';
+export const PARCOURS_START = '2026-02-01';
 
 /** Parcours end date (ISO format) */
-export const PARCOURS_END = '2025-04-26';
+export const PARCOURS_END = '2026-04-11';
 
 /** Total number of days in the parcours */
 export const TOTAL_DAYS = 70;
@@ -26,21 +26,21 @@ export const PERIODS: readonly Period[] = [
     name: 'Pré-Carême',
     startDay: 1,
     endDay: 17,
-    startDate: '2025-02-16',
-    endDate: '2025-03-04',
+    startDate: '2026-02-01',
+    endDate: '2026-02-17',
   },
   {
     name: 'Carême',
     startDay: 18,
     endDay: 63,
-    startDate: '2025-03-05',
-    endDate: '2025-04-19',
+    startDate: '2026-02-18',
+    endDate: '2026-04-04',
   },
   {
     name: 'Octave de Pâques',
     startDay: 64,
     endDay: 70,
-    startDate: '2025-04-20',
-    endDate: '2025-04-26',
+    startDate: '2026-04-05',
+    endDate: '2026-04-11',
   },
 ] as const;

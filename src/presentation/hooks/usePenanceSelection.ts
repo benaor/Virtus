@@ -6,11 +6,13 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { getSetupPenanceEngagementsUseCase, getNotificationService } from '@core/di/container';
+import { useOnboardingStore } from '@presentation/stores/useOnboardingStore';
 
 const MAX_SELECTIONS = 5;
 
 export function usePenanceSelection() {
   const router = useRouter();
+  const setOnboardingCompleted = useOnboardingStore((state) => state.setCompleted);
   const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export function usePenanceSelection() {
     setError(null);
 
     try {
-      // Save penance selections
+      // Save penance selections (this also persists onboarding completion to database)
       const useCase = getSetupPenanceEngagementsUseCase();
       await useCase.execute(selectedTitles);
 
@@ -62,12 +64,15 @@ export function usePenanceSelection() {
         await notificationService.scheduleDefaults();
       }
 
+      // Update store BEFORE navigation to prevent race condition
+      setOnboardingCompleted();
+
       router.replace('/(tabs)');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       setIsSubmitting(false);
     }
-  }, [canValidate, isSubmitting, selectedTitles, router]);
+  }, [canValidate, isSubmitting, selectedTitles, router, setOnboardingCompleted]);
 
   return {
     selectedTitles,

@@ -25,10 +25,10 @@ const COLORS = {
 
 // Upcoming liturgical events
 const UPCOMING_EVENTS = [
-  { icon: '✝', name: 'Mercredi des Cendres', date: '2025-03-05', display: '5 mars' },
-  { icon: '🕊', name: 'Dimanche des Rameaux', date: '2025-04-13', display: '13 avril' },
-  { icon: '🕯', name: 'Semaine Sainte', date: '2025-04-14', display: '14-19 avril' },
-  { icon: '☀️', name: 'Pâques', date: '2025-04-20', display: '20 avril' },
+  { icon: '✝', name: 'Mercredi des Cendres', date: '2026-02-18', display: '18 février' },
+  { icon: '🕊', name: 'Dimanche des Rameaux', date: '2026-03-29', display: '29 mars' },
+  { icon: '🕯', name: 'Semaine Sainte', date: '2026-03-30', display: '30 mars - 4 avril' },
+  { icon: '☀️', name: 'Pâques', date: '2026-04-05', display: '5 avril' },
 ];
 
 // Day labels (Monday first)

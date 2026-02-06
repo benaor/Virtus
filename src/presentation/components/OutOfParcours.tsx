@@ -92,7 +92,7 @@ function BeforeParcoursScreen() {
             fontStyle: 'italic',
           }}
         >
-          16 février 2025 — Dimanche de la Septuagésime
+          1er février 2026 — Dimanche de la Septuagésime
         </Text>
       </View>
 

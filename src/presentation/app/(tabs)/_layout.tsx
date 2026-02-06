@@ -3,8 +3,19 @@
  * Bottom tab navigation with 4 tabs
  */
 
-import { Tabs } from 'expo-router';
+import { Tabs, Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { Pressable } from 'react-native';
+
+function SettingsButton() {
+  return (
+    <Link href="/settings" asChild>
+      <Pressable style={{ marginRight: 16 }}>
+        <Feather name="settings" size={22} color="#6B7280" />
+      </Pressable>
+    </Link>
+  );
+}
 
 export default function TabsLayout() {
   return (
@@ -40,6 +51,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Feather name="home" size={size} color={color} />
           ),
+          headerRight: () => <SettingsButton />,
         }}
       />
       <Tabs.Screen

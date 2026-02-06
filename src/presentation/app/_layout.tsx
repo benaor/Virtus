@@ -4,27 +4,31 @@
  * manages splash screen, and detects day changes
  */
 
-import '../../../global.css';
+import "../../../global.css";
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { AppState, type AppStateStatus } from 'react-native';
-import { Stack, useRouter, useSegments } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { container } from '@core/di/container';
-import { useDayStore } from '@presentation/stores/useDayStore';
-import { LoadingScreen } from '@presentation/components';
+import { useEffect, useState, useRef, useCallback } from "react";
+import { AppState, type AppStateStatus } from "react-native";
+import { Stack, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { container } from "@core/di/container";
+import { useDayStore } from "@presentation/stores/useDayStore";
+import { useOnboardingStore } from "@presentation/stores/useOnboardingStore";
+import { LoadingScreen } from "@presentation/components";
 
 // Prevent splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
   const router = useRouter();
   const segments = useSegments();
   const appState = useRef(AppState.currentState);
   const refreshDay = useDayStore((state) => state.refreshDay);
   const currentDay = useDayStore((state) => state.currentDay);
+  const hasCompletedOnboarding = useOnboardingStore(
+    (state) => state.hasCompletedOnboarding,
+  );
+  const initializeOnboarding = useOnboardingStore((state) => state.initialize);
 
   // Initialize database and check onboarding status
   useEffect(() => {
@@ -33,13 +37,10 @@ export default function RootLayout() {
         // Initialize database (this also seeds it)
         container.getDatabase();
 
-        // Check onboarding status
-        const settingsRepo = container.getSettingsRepository();
-        const completed = await settingsRepo.hasCompletedOnboarding();
-        setHasCompletedOnboarding(completed);
+        // Initialize onboarding status from database
+        await initializeOnboarding();
       } catch (error) {
-        console.error('Failed to initialize:', error);
-        setHasCompletedOnboarding(false);
+        console.error("Failed to initialize:", error);
       } finally {
         setIsReady(true);
         await SplashScreen.hideAsync();
@@ -47,14 +48,14 @@ export default function RootLayout() {
     }
 
     initialize();
-  }, []);
+  }, [initializeOnboarding]);
 
   // Handle day change detection when app comes to foreground
   const handleAppStateChange = useCallback(
     (nextAppState: AppStateStatus) => {
       if (
         appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
+        nextAppState === "active"
       ) {
         // App has come to the foreground
         const previousDay = currentDay;
@@ -69,12 +70,15 @@ export default function RootLayout() {
 
       appState.current = nextAppState;
     },
-    [currentDay, refreshDay]
+    [currentDay, refreshDay],
   );
 
   // Subscribe to AppState changes
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange,
+    );
 
     return () => {
       subscription.remove();
@@ -85,17 +89,16 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isReady || hasCompletedOnboarding === null) return;
 
-    const inOnboarding = segments[0] === 'onboarding';
-    const inTabs = segments[0] === '(tabs)';
+    const inOnboarding = segments[0] === "onboarding";
 
     if (!hasCompletedOnboarding && !inOnboarding) {
       // User hasn't completed onboarding, redirect to welcome
-      router.replace('/onboarding/welcome');
+      router.replace("/onboarding/welcome");
     } else if (hasCompletedOnboarding && inOnboarding) {
       // User completed onboarding but is in onboarding flow, redirect to tabs
-      router.replace('/(tabs)');
+      router.replace("/(tabs)");
     }
-  }, [isReady, hasCompletedOnboarding, segments]);
+  }, [isReady, hasCompletedOnboarding, segments, router]);
 
   // Show loading screen while initializing
   if (!isReady) {
@@ -110,14 +113,14 @@ export default function RootLayout() {
       <Stack.Screen
         name="examen"
         options={{
-          presentation: 'modal',
+          presentation: "modal",
           headerShown: false,
         }}
       />
       <Stack.Screen
         name="settings"
         options={{
-          presentation: 'modal',
+          presentation: "modal",
           headerShown: false,
         }}
       />
