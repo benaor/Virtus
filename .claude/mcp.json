@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/sse"]
+    },
+    "context7": {
+      "type": "http",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "ctx7sk-12efec74-53a0-4bbf-9ea2-8b4b42515fca"
+      }
+    }
+  }
+}
