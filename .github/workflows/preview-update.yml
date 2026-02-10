@@ -1,0 +1,36 @@
+name: 🧪 Preview Update
+
+on:
+  push:
+    branches:
+      - preview
+  workflow_dispatch:
+
+concurrency:
+  group: preview-update-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  update:
+    name: EAS Update Preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 🏗 Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🧪 Publish preview update
+        run: eas update --channel preview --message "${{ github.event.head_commit.message }}" --non-interactive

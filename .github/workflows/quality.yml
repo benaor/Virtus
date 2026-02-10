@@ -1,0 +1,35 @@
+name: 🔍 Quality
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: TypeCheck, Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: 🔎 TypeScript check
+        run: bun run tsc --noEmit
+
+      - name: 🧹 Lint
+        run: bun lint
+
+      - name: 🧪 Test
+        run: bun test

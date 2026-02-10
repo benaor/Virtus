@@ -1,35 +1,50 @@
 {
   "cli": {
-    "version": ">= 5.0.0"
+    "version": ">= 14.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
+    "base": {
+      "node": "22.0.0",
+      "bun": "1.2.0"
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
-      "ios": {
-        "simulator": true
-      },
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "preview": {
-      "distribution": "internal",
-      "ios": {
-        "simulator": true
-      },
-      "android": {
-        "buildType": "apk"
-      }
-    },
-    "production": {
-      "distribution": "store",
+      "channel": "development",
       "ios": {
         "simulator": false
       },
-      "android": {
-        "buildType": "app-bundle"
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "development-simulator": {
+      "extends": "development",
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "production": {
+      "extends": "base",
+      "channel": "production",
+      "autoIncrement": true,
+      "env": {
+        "NODE_ENV": "production"
       }
     }
+  },
+  "submit": {
+    "production": {}
   }
 }

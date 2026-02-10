@@ -10,18 +10,24 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.hozana.virtus",
+      "bundleIdentifier": "com.escarboucle.virtus",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.hozana.virtus",
+      "package": "com.escarboucle.virtus",
       "adaptiveIcon": {
         "backgroundColor": "#FAF6EB",
         "foregroundImage": "./assets/images/adaptive-icon.png"
       },
       "edgeToEdgeEnabled": true
+    },
+    "updates": {
+      "url": "https://u.expo.dev/caadcb70-6094-4795-92ee-2f1aabd2b749"
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
     },
     "web": {
       "output": "static",
