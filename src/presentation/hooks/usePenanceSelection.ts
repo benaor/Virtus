@@ -7,6 +7,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { getSetupPenanceEngagementsUseCase, getNotificationService } from '@core/di/container';
 import { useOnboardingStore } from '@presentation/stores/useOnboardingStore';
+import { FEATURE_FLAGS } from '@core/constants';
 
 const MAX_SELECTIONS = 5;
 
@@ -58,10 +59,12 @@ export function usePenanceSelection() {
       await useCase.execute(selectedTitles);
 
       // Setup notifications at end of onboarding
-      const notificationService = getNotificationService();
-      const permissionGranted = await notificationService.requestPermissions();
-      if (permissionGranted) {
-        await notificationService.scheduleDefaults();
+      if (FEATURE_FLAGS.reminders) {
+        const notificationService = getNotificationService();
+        const permissionGranted = await notificationService.requestPermissions();
+        if (permissionGranted) {
+          await notificationService.scheduleDefaults();
+        }
       }
 
       // Update store BEFORE navigation to prevent race condition

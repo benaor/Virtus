@@ -12,7 +12,7 @@ import {
 import type { OverallStats } from '@domain/usecases/GetOverallStatsUseCase';
 import type { WeeklyEngagementStats } from '@domain/usecases/GetWeeklyStatsUseCase';
 import { generateEncouragement } from '@domain/helpers/generateEncouragement';
-import { useDayStore } from '@presentation/stores/useDayStore';
+import { useDayStore, useEngagementStore } from '@presentation/stores';
 import { getDayDate } from '@domain/entities/Parcours';
 
 // Settings keys for confession tracking
@@ -91,6 +91,7 @@ function getTodayISO(): string {
 
 export function useBilan(): UseBilanResult {
   const currentDay = useDayStore((state) => state.currentDay);
+  const engagementVersion = useEngagementStore((state) => state.version);
 
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
   const [weeklyStats, setWeeklyStats] = useState<WeeklyEngagementStats[]>([]);
@@ -157,7 +158,7 @@ export function useBilan(): UseBilanResult {
     } finally {
       setIsLoading(false);
     }
-  }, [currentDay, weekStartDate]);
+  }, [currentDay, weekStartDate, engagementVersion]);
 
   useEffect(() => {
     loadData();

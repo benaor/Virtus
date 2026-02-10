@@ -11,7 +11,7 @@ import {
   getGetExhortationUseCase,
   getToggleEngagementCheckUseCase,
 } from '@core/di/container';
-import { useDayStore } from '@presentation/stores/useDayStore';
+import { useDayStore, useEngagementStore } from '@presentation/stores';
 import { useDayProgress } from './useDayProgress';
 
 interface UseHomeDataResult {
@@ -36,6 +36,7 @@ interface UseHomeDataResult {
 export function useHomeData(): UseHomeDataResult {
   const currentDate = useDayStore((state) => state.currentDate);
   const currentDay = useDayStore((state) => state.currentDay);
+  const engagementVersion = useEngagementStore((state) => state.version);
 
   const { progress, isLoading: progressLoading, refresh: refreshProgress } = useDayProgress();
 
@@ -80,7 +81,7 @@ export function useHomeData(): UseHomeDataResult {
     } finally {
       setIsLoading(false);
     }
-  }, [currentDate, currentDay]);
+  }, [currentDate, currentDay, engagementVersion]);
 
   useEffect(() => {
     loadData();

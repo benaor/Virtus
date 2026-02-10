@@ -17,6 +17,7 @@ describe('SetupPenanceEngagementsUseCase', () => {
       getByCategory: jest.fn(),
       getActive: jest.fn(),
       addPenanceEngagements: jest.fn().mockResolvedValue(undefined),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 

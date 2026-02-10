@@ -12,6 +12,7 @@ import { useHomeData } from '@presentation/hooks';
 import { EngagementChecklist, ExhortationCard } from '@presentation/components';
 import type { EngagementCategory, CategoryProgress } from '@domain/entities';
 import { PARCOURS_START, TOTAL_DAYS } from '@core/constants/parcours';
+import { FEATURE_FLAGS } from '@core/constants';
 
 const COLORS = {
   gold: '#8B6914',
@@ -275,7 +276,7 @@ export default function HomeScreen() {
       <View className="px-5 mb-6">
         <ExhortationCard
           exhortation={exhortation}
-          onReadMore={handleReadMore}
+          onReadMore={FEATURE_FLAGS.formation ? handleReadMore : undefined}
         />
       </View>
 

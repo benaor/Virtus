@@ -48,18 +48,37 @@ export class SQLiteEngagementRepository implements EngagementRepository {
     const baseOrder = 10; // Start after fixed engagements
 
     db.withTransactionSync(() => {
-      // Delete existing penances
-      this.db.deleteEngagementsByCategory('penance');
+      // Get existing penances
+      const existing = this.db.getEngagementsByCategory('penance');
 
-      // Insert new penances
+      // Build maps for efficient lookup
+      const existingByTitle = new Map(existing.map(e => [e.title, e]));
+      const newTitles = new Set(engagements.map(e => e.title));
+
+      // Process new titles
       engagements.forEach((engagement, index) => {
-        const id = `penance-${Date.now()}-${index}`;
-        this.db.insertEngagement({
-          id,
-          category: 'penance',
-          title: engagement.title,
-          sort_order: baseOrder + index,
-        });
+        const existingEngagement = existingByTitle.get(engagement.title);
+
+        if (existingEngagement) {
+          // Title exists: keep it, reactivate if needed, update sort order
+          this.db.updateEngagement(existingEngagement.id, true, baseOrder + index);
+        } else {
+          // New title: insert it
+          const id = `penance-${Date.now()}-${index}`;
+          this.db.insertEngagement({
+            id,
+            category: 'penance',
+            title: engagement.title,
+            sort_order: baseOrder + index,
+          });
+        }
+      });
+
+      // Deactivate titles that are no longer selected
+      existing.forEach((engagement) => {
+        if (!newTitles.has(engagement.title)) {
+          this.db.updateEngagementActive(engagement.id, false);
+        }
       });
     });
   }

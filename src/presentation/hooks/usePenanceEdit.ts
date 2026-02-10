@@ -6,6 +6,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { getEngagementRepository } from '@core/di/container';
+import { useEngagementStore } from '@presentation/stores';
 
 const MAX_SELECTIONS = 5;
 
@@ -22,8 +23,9 @@ export function usePenanceEdit() {
       try {
         const repository = getEngagementRepository();
         const penances = await repository.getByCategory('penance');
-        const titles = penances.map((p) => p.title);
-        setSelectedTitles(titles);
+        // Filter to only active penances
+        const activeTitles = penances.filter((p) => p.isActive).map((p) => p.title);
+        setSelectedTitles(activeTitles);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur lors du chargement');
       } finally {
@@ -75,6 +77,9 @@ export function usePenanceEdit() {
       await repository.replacePenanceEngagements(
         selectedTitles.map((title) => ({ title }))
       );
+
+      // Trigger refresh in hooks that depend on engagements
+      useEngagementStore.getState().invalidate();
 
       // Navigate back
       router.back();

@@ -7,6 +7,7 @@ import { View, Text, ScrollView, TouchableOpacity, Switch as RNSwitch, Alert, Li
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useSettings } from '@presentation/hooks';
+import { FEATURE_FLAGS } from '@core/constants';
 
 const COLORS = {
   gold: '#8B6914',
@@ -261,24 +262,26 @@ export default function SettingsScreen() {
         contentContainerStyle={{ paddingBottom: 32, paddingTop: 16 }}
       >
         {/* NOTIFICATIONS Section */}
-        <View className="mb-6">
-          <SectionHeader title="NOTIFICATIONS" />
-          <Section>
-            <SettingToggleRow
-              label="Rappel matin (exhortation)"
-              subtitle={formatTime(settings.morningTime.hour, settings.morningTime.minute)}
-              value={settings.morningReminderEnabled}
-              onValueChange={toggleMorningReminder}
-            />
-            <Separator />
-            <SettingToggleRow
-              label="Rappel soir (examen)"
-              subtitle={formatTime(settings.eveningTime.hour, settings.eveningTime.minute)}
-              value={settings.eveningReminderEnabled}
-              onValueChange={toggleEveningReminder}
-            />
-          </Section>
-        </View>
+        {FEATURE_FLAGS.reminders && (
+          <View className="mb-6">
+            <SectionHeader title="NOTIFICATIONS" />
+            <Section>
+              <SettingToggleRow
+                label="Rappel matin (exhortation)"
+                subtitle={formatTime(settings.morningTime.hour, settings.morningTime.minute)}
+                value={settings.morningReminderEnabled}
+                onValueChange={toggleMorningReminder}
+              />
+              <Separator />
+              <SettingToggleRow
+                label="Rappel soir (examen)"
+                subtitle={formatTime(settings.eveningTime.hour, settings.eveningTime.minute)}
+                value={settings.eveningReminderEnabled}
+                onValueChange={toggleEveningReminder}
+              />
+            </Section>
+          </View>
+        )}
 
         {/* ENGAGEMENTS Section */}
         <View className="mb-6">
@@ -292,32 +295,34 @@ export default function SettingsScreen() {
         </View>
 
         {/* SOBRIÉTÉ NUMÉRIQUE Section */}
-        <View className="mb-6">
-          <SectionHeader title="SOBRIÉTÉ NUMÉRIQUE" />
-          <View
-            className="rounded-xl p-4"
-            style={{
-              backgroundColor: COLORS.goldBg,
-              borderWidth: 1,
-              borderColor: COLORS.goldLight,
-            }}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-1 pr-4">
-                <Text className="text-base" style={{ color: COLORS.textPrimary }}>
-                  Rappel temps d'écran
-                </Text>
-                <Text className="text-sm mt-1" style={{ color: COLORS.textSecondary }}>
-                  Notification après 10 min sur l'app
-                </Text>
+        {FEATURE_FLAGS.reminders && (
+          <View className="mb-6">
+            <SectionHeader title="SOBRIÉTÉ NUMÉRIQUE" />
+            <View
+              className="rounded-xl p-4"
+              style={{
+                backgroundColor: COLORS.goldBg,
+                borderWidth: 1,
+                borderColor: COLORS.goldLight,
+              }}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1 pr-4">
+                  <Text className="text-base" style={{ color: COLORS.textPrimary }}>
+                    Rappel temps d'écran
+                  </Text>
+                  <Text className="text-sm mt-1" style={{ color: COLORS.textSecondary }}>
+                    Notification après 10 min sur l'app
+                  </Text>
+                </View>
+                <Toggle
+                  value={settings.screenTimeReminderEnabled}
+                  onValueChange={toggleScreenTimeReminder}
+                />
               </View>
-              <Toggle
-                value={settings.screenTimeReminderEnabled}
-                onValueChange={toggleScreenTimeReminder}
-              />
             </View>
           </View>
-        </View>
+        )}
 
         {/* À PROPOS Section */}
         <View className="mb-6">

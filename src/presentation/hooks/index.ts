@@ -2,6 +2,7 @@
 // Custom React hooks for UI logic
 // Dependencies: @domain/usecases, @presentation/stores
 
+export * from './useFeatureFlag';
 export * from './usePenanceSelection';
 export * from './usePenanceEdit';
 export * from './useDayProgress';

@@ -3,3 +3,4 @@
 // Dependencies: @domain/entities, @domain/usecases
 
 export * from './useDayStore';
+export * from './useEngagementStore';

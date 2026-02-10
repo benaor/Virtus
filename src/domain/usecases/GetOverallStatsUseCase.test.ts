@@ -24,6 +24,7 @@ describe('GetOverallStatsUseCase', () => {
       getByCategory: jest.fn(),
       getActive: jest.fn().mockResolvedValue(mockEngagements),
       addPenanceEngagements: jest.fn(),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 
@@ -130,6 +131,7 @@ describe('GetOverallStatsUseCase', () => {
       getByCategory: jest.fn(),
       getActive: jest.fn().mockResolvedValue(engagementsNoPenance),
       addPenanceEngagements: jest.fn(),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 

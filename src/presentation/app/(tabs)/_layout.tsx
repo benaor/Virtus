@@ -6,6 +6,7 @@
 import { Tabs, Link } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
+import { FEATURE_FLAGS } from '@core/constants';
 
 function SettingsButton() {
   return (
@@ -62,6 +63,7 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => (
             <Feather name="book-open" size={size} color={color} />
           ),
+          href: FEATURE_FLAGS.formation ? undefined : null,
         }}
       />
       <Tabs.Screen

@@ -18,6 +18,7 @@ describe('GetDayProgressUseCase', () => {
       getByCategory: jest.fn(),
       getActive: jest.fn().mockResolvedValue(mockEngagements),
       addPenanceEngagements: jest.fn(),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 

@@ -11,10 +11,11 @@ describe('GetWeeklyStatsUseCase', () => {
 
   it('should return weekly stats with no checks', async () => {
     const engagementRepository: EngagementRepository = {
-      getAll: jest.fn(),
+      getAll: jest.fn().mockResolvedValue(mockEngagements),
       getByCategory: jest.fn(),
-      getActive: jest.fn().mockResolvedValue(mockEngagements),
+      getActive: jest.fn(),
       addPenanceEngagements: jest.fn(),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 
@@ -45,10 +46,11 @@ describe('GetWeeklyStatsUseCase', () => {
     ];
 
     const engagementRepository: EngagementRepository = {
-      getAll: jest.fn(),
+      getAll: jest.fn().mockResolvedValue(mockEngagements),
       getByCategory: jest.fn(),
-      getActive: jest.fn().mockResolvedValue(mockEngagements),
+      getActive: jest.fn(),
       addPenanceEngagements: jest.fn(),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 
@@ -68,10 +70,11 @@ describe('GetWeeklyStatsUseCase', () => {
 
   it('should call repository with correct date range', async () => {
     const engagementRepository: EngagementRepository = {
-      getAll: jest.fn(),
+      getAll: jest.fn().mockResolvedValue(mockEngagements),
       getByCategory: jest.fn(),
-      getActive: jest.fn().mockResolvedValue(mockEngagements),
+      getActive: jest.fn(),
       addPenanceEngagements: jest.fn(),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 
@@ -94,10 +97,11 @@ describe('GetWeeklyStatsUseCase', () => {
     ];
 
     const engagementRepository: EngagementRepository = {
-      getAll: jest.fn(),
+      getAll: jest.fn().mockResolvedValue(mockEngagements),
       getByCategory: jest.fn(),
-      getActive: jest.fn().mockResolvedValue(mockEngagements),
+      getActive: jest.fn(),
       addPenanceEngagements: jest.fn(),
+      replacePenanceEngagements: jest.fn(),
       hasPenanceEngagements: jest.fn(),
     };
 

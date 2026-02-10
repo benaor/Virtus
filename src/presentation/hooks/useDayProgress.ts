@@ -6,7 +6,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { DayProgress } from '@domain/entities';
 import { getGetDayProgressUseCase } from '@core/di/container';
-import { useDayStore } from '@presentation/stores/useDayStore';
+import { useDayStore, useEngagementStore } from '@presentation/stores';
 
 interface UseDayProgressResult {
   /** The current day's progress, null while loading or if error */
@@ -21,6 +21,7 @@ interface UseDayProgressResult {
 
 export function useDayProgress(): UseDayProgressResult {
   const currentDate = useDayStore((state) => state.currentDate);
+  const engagementVersion = useEngagementStore((state) => state.version);
   const [progress, setProgress] = useState<DayProgress | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +40,7 @@ export function useDayProgress(): UseDayProgressResult {
     } finally {
       setIsLoading(false);
     }
-  }, [currentDate]);
+  }, [currentDate, engagementVersion]);
 
   // Load progress on mount and when date changes
   useEffect(() => {

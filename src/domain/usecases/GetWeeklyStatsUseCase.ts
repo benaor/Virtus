@@ -31,7 +31,7 @@ export class GetWeeklyStatsUseCase {
     const endDate = dates[6];
 
     const [engagements, checks] = await Promise.all([
-      this.engagementRepository.getActive(),
+      this.engagementRepository.getAll(),
       this.dailyCheckRepository.getChecksForDateRange(weekStartDate, endDate),
     ]);
 

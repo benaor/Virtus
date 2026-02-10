@@ -18,8 +18,8 @@ const COLORS = {
 interface ExhortationCardProps {
   /** The exhortation to display, or null for placeholder */
   exhortation: Exhortation | null;
-  /** Callback when "Lire la suite" is pressed */
-  onReadMore: () => void;
+  /** Callback when "Lire la suite" is pressed (optional - if not provided, card is not clickable) */
+  onReadMore?: () => void;
 }
 
 export function ExhortationCard({ exhortation, onReadMore }: ExhortationCardProps) {
@@ -65,63 +65,71 @@ export function ExhortationCard({ exhortation, onReadMore }: ExhortationCardProp
     .replace(/\n+/g, ' ')
     .trim();
 
-  return (
-    <Pressable onPress={onReadMore}>
-      <Animated.View
-        className="rounded-2xl p-5"
+  const cardContent = (
+    <Animated.View
+      className="rounded-2xl p-5"
+      style={{
+        backgroundColor: COLORS.gradientStart,
+        // Simulated gradient with border
+        borderBottomWidth: 3,
+        borderBottomColor: COLORS.gradientEnd,
+        opacity: fadeAnim,
+        transform: [
+          {
+            translateY: fadeAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [8, 0],
+            }),
+          },
+        ],
+      }}
+    >
+      {/* Label */}
+      <Text
+        className="text-xs tracking-widest mb-3"
+        style={{ color: COLORS.gold }}
+      >
+        📖 EXHORTATION DU JOUR
+      </Text>
+
+      {/* Exhortation text - italic, serif, 3 lines max */}
+      <Text
+        className="text-base leading-6 mb-4"
+        numberOfLines={3}
         style={{
-          backgroundColor: COLORS.gradientStart,
-          // Simulated gradient with border
-          borderBottomWidth: 3,
-          borderBottomColor: COLORS.gradientEnd,
-          opacity: fadeAnim,
-          transform: [
-            {
-              translateY: fadeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [8, 0],
-              }),
-            },
-          ],
+          color: '#374151',
+          fontFamily: 'Georgia',
+          fontStyle: 'italic',
         }}
       >
-        {/* Label */}
-        <Text
-          className="text-xs tracking-widest mb-3"
-          style={{ color: COLORS.gold }}
-        >
-          📖 EXHORTATION DU JOUR
-        </Text>
+        « {plainText} »
+      </Text>
 
-        {/* Exhortation text - italic, serif, 3 lines max */}
+      {/* Footer: Author + Read more */}
+      <View className="flex-row items-center justify-between">
         <Text
-          className="text-base leading-6 mb-4"
-          numberOfLines={3}
-          style={{
-            color: '#374151',
-            fontFamily: 'Georgia',
-            fontStyle: 'italic',
-          }}
+          className="text-sm"
+          style={{ color: COLORS.textMuted }}
         >
-          « {plainText} »
+          — {exhortation.author}
         </Text>
-
-        {/* Footer: Author + Read more */}
-        <View className="flex-row items-center justify-between">
-          <Text
-            className="text-sm"
-            style={{ color: COLORS.textMuted }}
-          >
-            — {exhortation.author}
-          </Text>
+        {onReadMore && (
           <Text
             className="text-sm"
             style={{ color: COLORS.goldLight }}
           >
             Lire la suite →
           </Text>
-        </View>
-      </Animated.View>
-    </Pressable>
+        )}
+      </View>
+    </Animated.View>
   );
+
+  // If onReadMore is provided, make the card clickable
+  if (onReadMore) {
+    return <Pressable onPress={onReadMore}>{cardContent}</Pressable>;
+  }
+
+  // Otherwise, just display the card without interaction
+  return cardContent;
 }

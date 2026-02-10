@@ -271,6 +271,17 @@ export class SQLiteDatabase {
     );
   }
 
+  /**
+   * Update engagement active status and sort order
+   */
+  updateEngagement(id: string, isActive: boolean, sortOrder: number): void {
+    const db = this.getDatabase();
+    db.runSync(
+      'UPDATE engagements SET is_active = ?, sort_order = ? WHERE id = ?',
+      [isActive ? 1 : 0, sortOrder, id]
+    );
+  }
+
   // ==================== Daily Check Methods ====================
 
   /**
