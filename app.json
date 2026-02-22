@@ -19,7 +19,7 @@
       "package": "com.escarboucle.virtus",
       "adaptiveIcon": {
         "backgroundColor": "#FAF6EB",
-        "foregroundImage": "./assets/images/adaptive-icon.png"
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "edgeToEdgeEnabled": true
     },
@@ -52,7 +52,6 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/notification-icon.png",
           "color": "#8B6914"
         }
       ],

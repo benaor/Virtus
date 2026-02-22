@@ -3,9 +3,10 @@
  * Choose exactly 5 personal penance engagements
  */
 
-import { View, Text, Pressable, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView, ActivityIndicator, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { usePenanceSelection } from '@presentation/hooks';
+import { PENANCE_OPTIONS } from '@core/constants';
 
 // Golden palette (same as welcome screen)
 const COLORS = {
@@ -18,20 +19,6 @@ const COLORS = {
   textPrimary: '#111827',
   textMuted: '#6B7280',
 };
-
-// Proposed penance options
-const PENANCE_OPTIONS = [
-  "Pas d'alcool",
-  'Jeûne le vendredi',
-  'Douche froide',
-  'Pas de viande',
-  'Pas de sucre ajouté',
-  'Dormir par terre 1x/semaine',
-  'Pas de musique profane',
-  'Se lever à 6h',
-  'Pas de snacks/gourmandises',
-  'Pas de café/thé',
-];
 
 interface PenanceItemProps {
   title: string;
@@ -76,14 +63,56 @@ function PenanceItem({ title, isSelected, onToggle }: PenanceItemProps) {
   );
 }
 
+interface CustomEntryItemProps {
+  value: string;
+  index: number;
+  onUpdate: (index: number, text: string) => void;
+  onRemove: (index: number) => void;
+}
+
+function CustomEntryItem({ value, index, onUpdate, onRemove }: CustomEntryItemProps) {
+  return (
+    <View
+      className="flex-row items-center p-4 rounded-xl mb-3"
+      style={{
+        backgroundColor: COLORS.gray,
+        borderWidth: 2,
+        borderColor: COLORS.grayBorder,
+      }}
+    >
+      <TextInput
+        className="flex-1 text-base"
+        style={{
+          color: COLORS.textPrimary,
+        }}
+        value={value}
+        onChangeText={(text) => onUpdate(index, text)}
+        placeholder="Ton effort personnalisé..."
+        placeholderTextColor={COLORS.textMuted}
+      />
+      <Pressable
+        className="ml-3 w-8 h-8 items-center justify-center"
+        onPress={() => onRemove(index)}
+      >
+        <Feather name="x" size={20} color={COLORS.textMuted} />
+      </Pressable>
+    </View>
+  );
+}
+
 export default function PenanceScreen() {
   const {
+    customEntries,
     selectionCount,
+    canAddMore,
     canValidate,
     isSubmitting,
     error,
     toggle,
     isSelected,
+    addCustomEntry,
+    removeCustomEntry,
+    updateCustomEntry,
     submit,
   } = usePenanceSelection();
 
@@ -105,7 +134,7 @@ export default function PenanceScreen() {
           className="text-base text-center mb-6"
           style={{ color: COLORS.textMuted }}
         >
-          Choisis 5 parmi les propositions
+          Choisis 5 efforts (suggestions ou personnalisés)
         </Text>
 
         {/* Info Box */}
@@ -132,6 +161,7 @@ export default function PenanceScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
       >
+        {/* Suggestion options */}
         {PENANCE_OPTIONS.map((title) => (
           <PenanceItem
             key={title}
@@ -140,6 +170,54 @@ export default function PenanceScreen() {
             onToggle={() => toggle(title)}
           />
         ))}
+
+        {/* Custom entries */}
+        {customEntries.map((entry, index) => (
+          <CustomEntryItem
+            key={`custom-${index}`}
+            value={entry}
+            index={index}
+            onUpdate={updateCustomEntry}
+            onRemove={removeCustomEntry}
+          />
+        ))}
+
+        {/* Add custom entry button */}
+        <View>
+          <Pressable
+            className="flex-row items-center justify-center p-4 rounded-xl mb-3"
+            style={{
+              backgroundColor: COLORS.background,
+              borderWidth: 2,
+              borderColor: canAddMore ? COLORS.goldLight : COLORS.grayBorder,
+              borderStyle: 'dashed',
+            }}
+            onPress={canAddMore ? addCustomEntry : undefined}
+            disabled={!canAddMore}
+          >
+            <Feather name="plus" size={20} color={canAddMore ? COLORS.gold : COLORS.textMuted} />
+            <Text
+              className="ml-2 text-base"
+              style={{
+                color: canAddMore ? COLORS.gold : COLORS.textMuted,
+                fontWeight: '500',
+              }}
+            >
+              Ajouter un effort personnalisé
+            </Text>
+          </Pressable>
+          {!canAddMore && (
+            <Text
+              className="text-sm text-center mb-3"
+              style={{
+                color: COLORS.textMuted,
+                fontStyle: 'italic',
+              }}
+            >
+              Désélectionne une suggestion pour libérer une place
+            </Text>
+          )}
+        </View>
       </ScrollView>
 
       {/* Footer */}

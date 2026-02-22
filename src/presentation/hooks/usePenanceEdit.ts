@@ -7,17 +7,19 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { getEngagementRepository } from '@core/di/container';
 import { useEngagementStore } from '@presentation/stores';
+import { PENANCE_OPTIONS } from '@core/constants';
 
 const MAX_SELECTIONS = 5;
 
 export function usePenanceEdit() {
   const router = useRouter();
-  const [selectedTitles, setSelectedTitles] = useState<string[]>([]);
+  const [selectedSuggestions, setSelectedSuggestions] = useState<string[]>([]);
+  const [customEntries, setCustomEntries] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load existing penances on mount
+  // Load existing penances on mount and partition them
   useEffect(() => {
     async function loadPenances() {
       try {
@@ -25,7 +27,21 @@ export function usePenanceEdit() {
         const penances = await repository.getByCategory('penance');
         // Filter to only active penances
         const activeTitles = penances.filter((p) => p.isActive).map((p) => p.title);
-        setSelectedTitles(activeTitles);
+
+        // Partition into suggestions vs custom entries
+        const suggestions: string[] = [];
+        const custom: string[] = [];
+
+        activeTitles.forEach((title) => {
+          if (PENANCE_OPTIONS.includes(title as any)) {
+            suggestions.push(title);
+          } else {
+            custom.push(title);
+          }
+        });
+
+        setSelectedSuggestions(suggestions);
+        setCustomEntries(custom);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur lors du chargement');
       } finally {
@@ -36,37 +52,70 @@ export function usePenanceEdit() {
     loadPenances();
   }, []);
 
-  const canValidate = useMemo(
-    () => selectedTitles.length === MAX_SELECTIONS,
-    [selectedTitles]
+  // Derived state: combined list of selected titles
+  const selectedTitles = useMemo(
+    () => [...selectedSuggestions, ...customEntries],
+    [selectedSuggestions, customEntries]
   );
 
   const selectionCount = selectedTitles.length;
 
+  const canAddMore = useMemo(
+    () => selectionCount < MAX_SELECTIONS,
+    [selectionCount]
+  );
+
+  const canValidate = useMemo(
+    () => selectionCount === MAX_SELECTIONS,
+    [selectionCount]
+  );
+
   const toggle = useCallback((title: string) => {
-    setSelectedTitles((current) => {
+    setSelectedSuggestions((current) => {
       const isSelected = current.includes(title);
 
       if (isSelected) {
         // Remove from selection
         return current.filter((t) => t !== title);
       } else {
-        // Add to selection (only if under max)
-        if (current.length >= MAX_SELECTIONS) {
+        // Add to selection (only if under max total)
+        if (selectedTitles.length >= MAX_SELECTIONS) {
           return current;
         }
         return [...current, title];
       }
     });
-  }, []);
+  }, [selectedTitles.length]);
 
   const isSelected = useCallback(
-    (title: string) => selectedTitles.includes(title),
-    [selectedTitles]
+    (title: string) => selectedSuggestions.includes(title),
+    [selectedSuggestions]
   );
+
+  const addCustomEntry = useCallback(() => {
+    if (selectionCount >= MAX_SELECTIONS) return;
+    setCustomEntries((current) => [...current, '']);
+  }, [selectionCount]);
+
+  const removeCustomEntry = useCallback((index: number) => {
+    setCustomEntries((current) => current.filter((_, i) => i !== index));
+  }, []);
+
+  const updateCustomEntry = useCallback((index: number, text: string) => {
+    setCustomEntries((current) =>
+      current.map((entry, i) => (i === index ? text : entry))
+    );
+  }, []);
 
   const submit = useCallback(async () => {
     if (!canValidate || isSubmitting) return;
+
+    // Client-side validation: check that all custom entries are non-empty
+    const hasEmptyCustomEntry = customEntries.some((entry) => entry.trim() === '');
+    if (hasEmptyCustomEntry) {
+      setError('Tous les champs personnalisés doivent être remplis');
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -87,17 +136,23 @@ export function usePenanceEdit() {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
       setIsSubmitting(false);
     }
-  }, [canValidate, isSubmitting, selectedTitles, router]);
+  }, [canValidate, isSubmitting, selectedTitles, customEntries, router]);
 
   return {
+    selectedSuggestions,
+    customEntries,
     selectedTitles,
     selectionCount,
+    canAddMore,
     canValidate,
     isLoading,
     isSubmitting,
     error,
     toggle,
     isSelected,
+    addCustomEntry,
+    removeCustomEntry,
+    updateCustomEntry,
     submit,
   };
 }

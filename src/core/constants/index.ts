@@ -4,3 +4,4 @@
 
 export * from './featureFlags';
 export * from './parcours';
+export * from './penanceOptions';
